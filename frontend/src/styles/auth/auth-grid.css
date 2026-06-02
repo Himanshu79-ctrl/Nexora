@@ -1,0 +1,411 @@
+/* =========================
+   MAIN LAYOUT
+========================= */
+
+.auth-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #050816;
+}
+
+/* =========================
+   LEFT / RIGHT VISUAL PANEL
+========================= */
+
+.auth-visual-panel {
+  position: relative;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(139,92,246,0.18),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(59,130,246,0.15),
+      transparent 35%
+    ),
+    linear-gradient(
+      135deg,
+      #0b1020 0%,
+      #0f172a 50%,
+      #111827 100%
+    );
+
+  border-right: 1px solid rgba(255,255,255,0.06);
+}
+
+/* =========================
+   FORM PANEL
+========================= */
+
+.auth-grid-bg {
+  position: relative;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #050816;
+}
+
+/* =========================
+   GRID BACKGROUND
+========================= */
+
+.auth-grid-bg::before,
+.auth-grid-bg::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background-image:
+    linear-gradient(
+      rgba(255,255,255,0.04) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,0.04) 1px,
+      transparent 1px
+    );
+
+  background-size: 60px 60px;
+
+  pointer-events: none;
+}
+
+/* =========================
+   BLUE GLOW
+========================= */
+
+.auth-blue-glow {
+  position: absolute;
+
+  width: 550px;
+  height: 550px;
+
+  left: -250px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  background: radial-gradient(
+    circle,
+    rgba(59,130,246,0.18),
+    transparent 70%
+  );
+
+  filter: blur(120px);
+}
+
+/* =========================
+   PURPLE GLOW
+========================= */
+
+.auth-purple-glow {
+  position: absolute;
+
+  width: 550px;
+  height: 550px;
+
+  right: -250px;
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  background: radial-gradient(
+    circle,
+    rgba(139,92,246,0.18),
+    transparent 70%
+  );
+
+  filter: blur(120px);
+}
+
+/* =========================
+   FORM CARD
+========================= */
+
+.auth-form-wrapper {
+  position: relative;
+  z-index: 10;
+
+  width: 100%;
+  max-width: 520px;
+
+  padding: 48px;
+
+  background: rgba(8,15,30,0.88);
+
+  backdrop-filter: blur(20px);
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  border-radius: 24px;
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.45),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* =========================
+   VISUAL CONTENT
+========================= */
+
+.auth-content {
+  position: relative;
+  z-index: 10;
+
+  max-width: 520px;
+}
+
+/* =========================
+   BIG HEADING
+========================= */
+
+.auth-title {
+  font-size: 56px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: -2px;
+
+  color: #ffffff;
+
+  margin-bottom: 20px;
+}
+
+.auth-title span {
+  background: linear-gradient(
+    90deg,
+    #c4b5fd,
+    #60a5fa
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* =========================
+   STATS
+========================= */
+
+.auth-stat-value {
+  font-size: 28px;
+  font-weight: 800;
+
+  background: linear-gradient(
+    135deg,
+    #8b5cf6,
+    #60a5fa
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.auth-stat-label {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 900px) {
+
+  .auth-page {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-visual-panel {
+    display: none;
+  }
+
+  .auth-form-wrapper {
+    max-width: 100%;
+    padding: 32px;
+  }
+}
+.auth-content{
+  position:relative;
+  z-index:10;
+  max-width:540px;
+}
+
+.auth-badge{
+  display:inline-flex;
+  align-items:center;
+
+  padding:10px 18px;
+
+  border-radius:999px;
+
+  background:rgba(124,58,237,0.12);
+
+  border:1px solid rgba(124,58,237,0.25);
+
+  color:#c4b5fd;
+
+  font-size:14px;
+  font-weight:600;
+
+  margin-bottom:28px;
+}
+
+.auth-hero-title{
+  font-size:72px;
+  line-height:0.95;
+
+  font-weight:900;
+
+  color:white;
+
+  letter-spacing:-3px;
+
+  margin-bottom:24px;
+}
+
+.auth-hero-title span{
+  display:block;
+
+  background:linear-gradient(
+      135deg,
+      #8b5cf6,
+      #60a5fa
+  );
+
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.auth-hero-subtitle{
+  font-size:18px;
+  line-height:1.8;
+
+  color:#94a3b8;
+
+  margin-bottom:40px;
+}
+
+.auth-feature-list{
+  display:flex;
+  flex-direction:column;
+
+  gap:16px;
+
+  color:#e2e8f0;
+
+  font-size:16px;
+
+  font-weight:500;
+}
+
+.auth-stats{
+  display:flex;
+  gap:18px;
+  margin-top:40px;
+}
+
+.auth-stat-card{
+  flex:1;
+
+  padding:18px;
+
+  border-radius:18px;
+
+  background:rgba(255,255,255,0.04);
+
+  border:1px solid rgba(255,255,255,0.06);
+
+  text-align:center;
+}
+
+.auth-stat-card h3{
+  font-size:24px;
+  margin:0;
+
+  background:linear-gradient(
+      135deg,
+      #8b5cf6,
+      #60a5fa
+  );
+
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.auth-stat-card span{
+  color:#94a3b8;
+  font-size:13px;
+}
+
+.auth-mini-card{
+  margin-top:40px;
+
+  display:flex;
+  align-items:center;
+  gap:20px;
+
+  padding:20px;
+
+  border-radius:20px;
+
+  background:rgba(255,255,255,0.04);
+
+  border:1px solid rgba(255,255,255,0.06);
+}
+
+.auth-score-circle{
+  width:70px;
+  height:70px;
+
+  border-radius:50%;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-weight:700;
+
+  color:white;
+
+  background:linear-gradient(
+      135deg,
+      #8b5cf6,
+      #60a5fa
+  );
+}
+
+.auth-mini-card h4{
+  color:white;
+  margin-bottom:6px;
+}
+
+.auth-mini-card p{
+  color:#94a3b8;
+  font-size:14px;
+}
+
+@media (max-width: 900px){
+
+  .auth-page{
+    grid-template-columns:1fr;
+  }
+
+  .auth-visual-panel{
+    min-height:350px;
+    display:flex;
+  }
+
+}

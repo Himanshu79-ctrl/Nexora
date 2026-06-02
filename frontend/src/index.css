@@ -1,0 +1,16 @@
+/* Edge password reveal button */
+input[type="password"]::-ms-reveal {
+  display: none;
+}
+
+/* Edge clear button */
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+/* Chromium autofill/password manager icons */
+input::-webkit-credentials-auto-fill-button {
+  visibility: hidden;
+  display: none !important;
+  pointer-events: none;
+}

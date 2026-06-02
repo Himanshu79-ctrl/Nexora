@@ -1,0 +1,16 @@
+:root {
+
+  --bg-primary: #050816;
+  --bg-secondary: #0b1020;
+
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+
+  --border-color: rgba(255,255,255,0.08);
+
+  --purple: #8b5cf6;
+  --purple-dark: #6d28d9;
+
+  --blue: #3b82f6;
+
+}

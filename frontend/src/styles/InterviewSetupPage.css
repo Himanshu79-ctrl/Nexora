@@ -1,0 +1,65 @@
+        .setup-page { max-width: 900px; }
+        .page-header { margin-bottom: 28px; }
+        .page-header h1 { color: #e2e8f0; font-size: 26px; font-weight: 700; margin: 0 0 6px; }
+        .page-header p { color: #64748b; font-size: 14px; margin: 0; }
+        .setup-grid { display: grid; grid-template-columns: 1fr 340px; gap: 24px; }
+        .setup-left { display: flex; flex-direction: column; gap: 24px; }
+        .setup-section h2 { color: #94a3b8; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 12px; }
+        .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .role-card {
+          display: flex; align-items: center; gap: 10px;
+          padding: 14px 16px;
+          background: rgba(15,12,30,0.6);
+          border: 1px solid rgba(139,92,246,0.15);
+          border-radius: 12px;
+          color: #94a3b8;
+          font-size: 13px; font-weight: 500;
+          cursor: pointer; transition: all 0.15s;
+          text-align: left;
+        }
+        .role-card:hover { border-color: rgba(139,92,246,0.35); color: #e2e8f0; }
+        .role-card.selected { border-color: #8b5cf6; background: rgba(139,92,246,0.1); color: #e2e8f0; }
+        .role-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .pill-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .pill {
+          padding: 8px 20px;
+          background: rgba(15,12,30,0.6);
+          border: 1px solid rgba(139,92,246,0.15);
+          border-radius: 20px;
+          color: #64748b;
+          font-size: 13px; font-weight: 500;
+          cursor: pointer; transition: all 0.15s;
+        }
+        .pill:hover { border-color: rgba(139,92,246,0.35); color: #94a3b8; }
+        .pill.active { border-color: #8b5cf6; background: rgba(139,92,246,0.15); color: #a78bfa; }
+        .settings-card { background: rgba(15,12,30,0.7); border: 1px solid rgba(139,92,246,0.15); border-radius: 16px; padding: 24px; position: sticky; top: 24px; }
+        .settings-card h2 { color: #e2e8f0; font-size: 16px; font-weight: 700; margin: 0 0 20px; }
+        .toggle-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .toggle-info { display: flex; align-items: center; gap: 10px; }
+        .toggle-label { color: #e2e8f0; font-size: 13px; font-weight: 600; margin: 0; }
+        .toggle-desc { color: #64748b; font-size: 11px; margin: 0; }
+        .toggle { width: 44px; height: 24px; background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.2); border-radius: 12px; padding: 2px; cursor: pointer; transition: all 0.25s; position: relative; }
+        .toggle.on { background: rgba(139,92,246,0.4); border-color: #8b5cf6; }
+        .toggle-knob { width: 18px; height: 18px; background: #64748b; border-radius: 50%; transition: all 0.25s; }
+        .toggle.on .toggle-knob { background: #a78bfa; transform: translateX(20px); }
+        .divider { border: none; border-top: 1px solid rgba(139,92,246,0.1); margin: 20px 0; }
+        .summary { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .summary-row { display: flex; justify-content: space-between; font-size: 13px; }
+        .summary-row span:first-child { color: #64748b; }
+        .summary-row span:last-child { color: #e2e8f0; font-weight: 600; }
+        .start-btn {
+          width: 100%;
+          padding: 14px;
+          background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+          border: none;
+          border-radius: 12px;
+          color: white;
+          font-size: 15px; font-weight: 700;
+          cursor: pointer;
+          display: flex; align-items: center; justify-content: center; gap: 8px;
+          transition: all 0.2s;
+        }
+        .start-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .start-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 10px 25px rgba(139,92,246,0.5); }
+        @media (max-width: 768px) { .setup-grid { grid-template-columns: 1fr; } .role-grid { grid-template-columns: 1fr; } }
+    
