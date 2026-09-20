@@ -114,7 +114,6 @@ The platform analyzes a candidate's resume, extracts relevant skills and project
 
 
 
-
 **🎯 Interview Setup**
 
 Before starting an interview, the candidate can configure:
