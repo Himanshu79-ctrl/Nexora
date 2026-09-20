@@ -80,9 +80,7 @@ The platform analyzes a candidate's resume, extracts relevant skills and project
                        │
                        ▼
                 AI Interview Report
-
                 
-
 🏗️ System Architecture
 ┌──────────────────────────────────────────────┐
 │                  React Frontend              │
@@ -117,7 +115,7 @@ The platform analyzes a candidate's resume, extracts relevant skills and project
 
 
 
-🎯 Interview Setup
+**🎯 Interview Setup**
 
 Before starting an interview, the candidate can configure:
 
@@ -136,7 +134,9 @@ Difficulty: Medium
 Duration: 45 Minutes
 Voice: Enabled
 Camera: Enabled
-🤖 AI Interview Engine
+
+
+**🤖 AI Interview Engine**
 
 The AI interviewer generates questions based on the candidate's context.
 
@@ -152,8 +152,8 @@ Previous answers
 
 This allows the interview to be personalized instead of relying only on a fixed question list.
 
-
-🎤 Voice Interview
+**
+🎤 Voice Interview**
 
 Nexora AI uses browser-native speech APIs for the voice interaction.
 
@@ -174,7 +174,7 @@ Speech Synthesis
     ↓
 Candidate hears question
 
-⚙️ Local Development Setup
+**⚙️ Local Development Setup**
 1. Clone Repository
 git clone https://github.com/YOUR_USERNAME/ai-mock-interview.git
 cd ai-mock-interview
@@ -221,8 +221,8 @@ npm install
 Start the frontend:
 
 npm run dev
-
-##🔑 Environment Variables
+**
+##🔑 Environment Variables**
 
 Create a .env file for sensitive configuration.
 
