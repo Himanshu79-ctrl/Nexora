@@ -81,36 +81,6 @@ The platform analyzes a candidate's resume, extracts relevant skills and project
                        ▼
                 AI Interview Report
                 
-🏗️ System Architecture
-┌──────────────────────────────────────────────┐
-│                  React Frontend              │
-│                                              │
-│  Dashboard │ Resume │ Interview │ Reports   │
-│                                              │
-│  Speech Recognition │ Speech Synthesis      │
-│              │                               │
-│              ▼                               │
-│          WebSocket Client                   │
-└──────────────────┬───────────────────────────┘
-                   │
-                   │ REST / WebSocket
-                   ▼
-┌──────────────────────────────────────────────┐
-│                Django Backend                │
-│                                              │
-│  Django REST Framework                       │
-│  Django Channels                             │
-│  JWT Authentication                          │
-│  Interview Services                          │
-│  Resume Services                             │
-│                                              │
-│              ┌───────────────┐               │
-│              │   AI Engine   │               │
-│              └───────┬───────┘               │
-└──────────────────────┼───────────────────────┘
-                       │
-                       ▼
-                  Google Gemini
 
 
 
