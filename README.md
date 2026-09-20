@@ -29,7 +29,6 @@ The platform analyzes a candidate's resume, extracts relevant skills and project
 
 ## 🧠 How It Works
 
-```text
                     Candidate
                        │
                        ▼
@@ -82,6 +81,8 @@ The platform analyzes a candidate's resume, extracts relevant skills and project
                        ▼
                 AI Interview Report
 
+                
+
 🏗️ System Architecture
 ┌──────────────────────────────────────────────┐
 │                  React Frontend              │
@@ -112,6 +113,9 @@ The platform analyzes a candidate's resume, extracts relevant skills and project
                        │
                        ▼
                   Google Gemini
+
+
+
 
 🎯 Interview Setup
 
@@ -217,12 +221,11 @@ npm install
 Start the frontend:
 
 npm run dev
-🔑 Environment Variables
+
+##🔑 Environment Variables
 
 Create a .env file for sensitive configuration.
 
 SECRET_KEY=your_secret_key
 GEMINI_API_KEY=your_gemini_api_key
 DEBUG=True
-
-Never commit API keys, secret keys, passwords, JWT tokens, or other credentials to GitHub.
