@@ -1,166 +1,350 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import InterviewHeader from '../components/interview/InterviewHeader';
-import AIAvatar from '../components/interview/AIAvatar';
-import QuestionCard from '../components/interview/QuestionCard';
-import LiveTranscript from '../components/interview/LiveTranscript';
-import WebcamPanel from '../components/interview/WebcamPanel';
-import InterviewControls from '../components/interview/InterviewControls';
-import ConnectionStatus from '../components/interview/ConnectionStatus';
-import InterviewLoader from '../components/interview/InterviewLoader';
-import { useWebcam } from '../hooks/useWebcam';
-import { useInterview } from '../hooks/useInterview';
-import toast from 'react-hot-toast';
+import { useEffect, useRef, useState, useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import toast from "react-hot-toast";
+
+import InterviewHeader from "../components/interview/InterviewHeader";
+import AIAvatar from "../components/interview/AIAvatar";
+import QuestionCard from "../components/interview/QuestionCard";
+import LiveTranscript from "../components/interview/LiveTranscript";
+import WebcamPanel from "../components/interview/WebcamPanel";
+import InterviewControls from "../components/interview/InterviewControls";
+import ConnectionStatus from "../components/interview/ConnectionStatus";
+import InterviewLoader from "../components/interview/InterviewLoader";
+
+import { useInterview } from "../hooks/useInterview";
+import { useSpeechRecognition } from "../hooks/useSpeechRecognition";
+
+import { useWebcam } from "../hooks/useWebcam";
 
 export default function InterviewRoomPage() {
-  const { sessionId } = useParams();
   const navigate = useNavigate();
-  const { stream, isEnabled: camEnabled, toggleCamera } = useWebcam();
+
+  const { sessionId } = useParams();
+
+ const {
+  connected,
+  currentQuestion,
+  transcript,
+  submitUserAnswer,
+  finish,
+  wsMessage,
+  loading,
+  thinking,
+  isSpeaking,
+} = useInterview(sessionId);
+
   const {
-    loading, connected, currentQuestion, questionNumber, totalQuestions,
-    transcript, isSpeaking, isListening, isThinking, isMuted, toggleMute, endInterview,
-  } = useInterview(sessionId);
+    stream,
+
+    isEnabled,
+
+    toggleCamera,
+  } = useWebcam();
+
+
 
   const [videoOff, setVideoOff] = useState(false);
 
-  const handleEnd = async () => {
-    try {
-      const result = await endInterview();
-      toast.success('Interview completed!');
-      navigate(`/report/${result?.interviewId || sessionId}`);
-    } catch {
-      navigate('/dashboard');
-    }
-  };
+  const [muted, setMuted] = useState(false);
 
-  const handleToggleVideo = () => {
-    setVideoOff(v => !v);
+//   const [lastSpokenQuestion, setLastSpokenQuestion] = useState("");
+
+  const transcriptRef = useRef(null);
+
+  /*
+    -----------------------------------
+    Speech Recognition
+    -----------------------------------
+    */
+
+  const {
+    isListening,
+
+    interimText,
+
+    start,
+
+    stop: stopListening,
+ } = useSpeechRecognition(async (finalText) => {
+  if (!finalText.trim()) return;
+
+  stopListening();
+  await submitUserAnswer(finalText);
+});
+
+
+
+  /*
+    -----------------------------------
+    Auto Scroll Transcript
+    -----------------------------------
+    */
+
+  useEffect(() => {
+    if (!transcriptRef.current) return;
+
+    transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
+  }, [transcript]);
+
+  /*
+    -----------------------------------
+    Auto Listen
+
+    Once AI finishes speaking,
+    microphone starts automatically.
+    -----------------------------------
+    */
+
+ useEffect(() => {
+  if (!currentQuestion) return;
+  if (isSpeaking) return;
+  if (isListening) return;
+  if (muted) return;
+
+  const timer = setTimeout(() => {
+    start();
+  }, 500);
+
+  return () => clearTimeout(timer);
+}, [currentQuestion, isSpeaking, isListening, muted, start]);
+
+  /*
+    -----------------------------------
+    Handle End Interview
+    -----------------------------------
+    */
+
+const handleEndInterview = useCallback(async () => {
+  try {
+    stopListening();
+
+    const report = await finish();
+
+    toast.success("Interview Completed");
+    navigate(`/report/${report.interview_id}`);
+  } catch (error) {
+    console.error(error);
+    toast.error("Unable to finish interview.");
+  }
+}, [finish, navigate, stopListening]);
+
+  /*
+    -----------------------------------
+    Toggle Camera
+    -----------------------------------
+    */
+
+  const handleToggleCamera = () => {
+    setVideoOff((previous) => !previous);
+
     toggleCamera();
   };
 
-  if (loading) {
-    return (
-      <div style={{ minHeight: '100vh', background: '#080618', display: 'flex', flexDirection: 'column' }}>
-        <InterviewHeader onEnd={handleEnd} />
-        <InterviewLoader message="Connecting to AI Interviewer..." />
-      </div>
-    );
-  }
+  /*
+    -----------------------------------
+    Toggle Mic
+    -----------------------------------
+    */
 
+  const handleToggleMute = () => {
+    if (muted) {
+      start();
+    } else {
+      stopListening();
+    }
+
+    setMuted((previous) => !previous);
+  };
+
+  /*
+    -----------------------------------
+    Loading Screen
+    -----------------------------------
+    */
+
+  if (loading) {
+    return <InterviewLoader message="Preparing your AI Interview..." />;
+  }
   return (
     <div className="room-wrapper">
-      <InterviewHeader sessionId={sessionId} onEnd={handleEnd} />
+        <InterviewHeader
+            title="AI Interview"
+            connected={connected}
+            running={true}
+            onEnd={handleEndInterview}
+        />
 
       <div className="room-body">
-        {/* Left panel - AI + Question */}
+        {/* LEFT PANEL */}
+
         <div className="left-panel">
           <div className="ai-panel">
-            <AIAvatar isSpeaking={isSpeaking} isListening={isListening} isThinking={isThinking} />
-            <ConnectionStatus status={connected ? 'connected' : 'connecting'} />
+            <AIAvatar speaking={isSpeaking} listening={isListening} />
+
+            <ConnectionStatus connected={connected} />
           </div>
+
           <QuestionCard
-            question={currentQuestion}
-            questionNumber={questionNumber}
-            totalQuestions={totalQuestions}
+            question={
+              typeof currentQuestion === "string"
+                ? {
+                    text: currentQuestion,
+                  }
+                : currentQuestion
+            }
+            index={transcript.length / 2}
           />
-          <LiveTranscript messages={transcript} />
+
+          <div
+            ref={transcriptRef}
+            style={{
+              flex: 1,
+
+              overflowY: "auto",
+            }}
+          >
+            <LiveTranscript messages={transcript} />
+          </div>
         </div>
 
-        {/* Right panel - Webcam + Transcript */}
+        {/* RIGHT PANEL */}
+
         <div className="right-panel">
-          <WebcamPanel stream={stream} isEnabled={camEnabled && !videoOff} />
-          <div className="thinking-state">
-            {isThinking && (
-              <div className="thinking-badge">
-                <div className="think-dot" />
-                <div className="think-dot" />
-                <div className="think-dot" />
-                <span>Thinking...</span>
-              </div>
-            )}
-          </div>
+          <WebcamPanel stream={stream} isEnabled={isEnabled && !videoOff} />
+
+          {thinking && <div className="thinking-badge">AI is thinking...</div>}
+
+          {interimText && (
+            <div className="live-transcript">
+              <strong>You:</strong> {interimText}
+            </div>
+          )}
         </div>
       </div>
 
       <InterviewControls
-        isMuted={isMuted}
-        isVideoOff={videoOff}
-        onToggleMute={toggleMute}
-        onToggleVideo={handleToggleVideo}
-        onShareScreen={() => toast('Screen sharing coming soon')}
-        onOpenNotes={() => toast('Notes panel coming soon')}
-        onOpenSettings={() => toast('Settings coming soon')}
-        onEnd={handleEnd}
+        muted={muted}
+        videoOff={videoOff}
+        onMute={handleToggleMute}
+        onVideo={handleToggleCamera}
+        onShare={() => toast("Coming Soon")}
+        onNotes={() => toast("Coming Soon")}
+        onSettings={() => toast("Coming Soon")}
       />
 
-      <style>{`
-        .room-wrapper {
-          display: flex;
-          flex-direction: column;
-          height: 100vh;
-          background: #080618;
-          overflow: hidden;
-        }
-        .room-body {
-          flex: 1;
-          display: grid;
-          grid-template-columns: 1fr 320px;
-          gap: 0;
-          overflow: hidden;
-        }
-        .left-panel {
-          padding: 24px;
-          display: flex;
-          flex-direction: column;
-          gap: 18px;
-          overflow-y: auto;
-          border-right: 1px solid rgba(139, 92, 246, 0.1);
-        }
-        .ai-panel {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 12px;
-          padding: 24px;
-          background: rgba(15, 12, 30, 0.5);
-          border: 1px solid rgba(139, 92, 246, 0.12);
-          border-radius: 16px;
-        }
-        .right-panel {
-          padding: 24px;
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-          background: rgba(10, 8, 20, 0.5);
-          overflow-y: auto;
-        }
-        .thinking-state { min-height: 36px; }
-        .thinking-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          background: rgba(139, 92, 246, 0.1);
-          border: 1px solid rgba(139, 92, 246, 0.25);
-          border-radius: 20px;
-          padding: 6px 14px;
-          color: #a78bfa;
-          font-size: 13px;
-          font-weight: 500;
-        }
-        .think-dot {
-          width: 5px;
-          height: 5px;
-          background: #a78bfa;
-          border-radius: 50%;
-          animation: thinking 1.2s ease-in-out infinite;
-        }
-        .think-dot:nth-child(2) { animation-delay: 0.2s; }
-        .think-dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes thinking {
-          0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-          40% { transform: scale(1); opacity: 1; }
-        }
-      `}</style>
+      <style>
+        {`
+
+                .room-wrapper{
+
+                    display:flex;
+
+                    flex-direction:column;
+
+                    height:100vh;
+
+                    background:#09090f;
+
+                }
+
+                .room-body{
+
+                    flex:1;
+
+                    display:grid;
+
+                    grid-template-columns:1fr 330px;
+
+                    overflow:hidden;
+
+                }
+
+                .left-panel{
+
+                    display:flex;
+
+                    flex-direction:column;
+
+                    padding:24px;
+
+                    gap:20px;
+
+                    overflow:hidden;
+
+                }
+
+                .right-panel{
+
+                    border-left:1px solid rgba(255,255,255,.08);
+
+                    padding:20px;
+
+                    display:flex;
+
+                    flex-direction:column;
+
+                    gap:20px;
+
+                }
+
+                .ai-panel{
+
+                    display:flex;
+
+                    flex-direction:column;
+
+                    align-items:center;
+
+                    justify-content:center;
+
+                    padding:30px;
+
+                    border-radius:18px;
+
+                    background:rgba(255,255,255,.03);
+
+                    border:1px solid rgba(255,255,255,.08);
+
+                }
+
+                .thinking-badge{
+
+                    padding:12px;
+
+                    border-radius:12px;
+
+                    text-align:center;
+
+                    color:#A78BFA;
+
+                    background:rgba(124,58,237,.12);
+
+                    border:1px solid rgba(124,58,237,.25);
+
+                    font-weight:600;
+
+                }
+
+                .live-transcript{
+
+                    margin-top:10px;
+
+                    padding:15px;
+
+                    border-radius:12px;
+
+                    background:rgba(255,255,255,.05);
+
+                    color:white;
+
+                    line-height:1.6;
+
+                    font-size:15px;
+
+                }
+
+                `}
+      </style>
     </div>
   );
 }

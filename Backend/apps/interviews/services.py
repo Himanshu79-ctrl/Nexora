@@ -4,7 +4,15 @@ from apps.resumes.models import Resume
 from .models import  InterviewSession
 import logging
 from apps.ai_engine.gemini_service import  generate_interview_question,evaluate_answer
-from .models import InterviewTranscript, TranscriptRole
+from django.utils import timezone
+
+from .models import (
+    InterviewSession,
+    InterviewTranscript,
+    TranscriptRole,
+    InterviewReport,
+    InterviewStatus,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -61,6 +69,38 @@ def create_interview_session(*,user,validated_data):
         raise Exception(
             f"Interview creation failed: {str(e)}"
         )
+
+
+def start_interview(*, interview):
+
+    if interview.status != InterviewStatus.CREATED:
+
+        return
+
+    interview.status = (
+        InterviewStatus.IN_PROGRESS
+    )
+
+    interview.started_at = (
+        timezone.now()
+    )
+
+    interview.save(
+        update_fields=[
+            "status",
+            "started_at"
+        ]
+    )
+
+def generate_welcome_message(*, interview):
+
+    return (
+        f"Hello and welcome to your "
+        f"{interview.role} interview. "
+        f"I will assess your technical knowledge, "
+        f"problem solving ability and communication skills. "
+        f"Let's begin."
+    )
 
 
 
@@ -248,3 +288,138 @@ def process_user_answer(*,interview,answer):
             "next_question":
             "Can you explain your previous answer in more detail?"
         }
+    
+def end_interview(*, interview):
+
+    if interview.status == (
+        InterviewStatus.COMPLETED
+    ):
+        return
+
+    interview.status = (
+        InterviewStatus.COMPLETED
+    )
+
+    interview.ended_at = (
+        timezone.now()
+    )
+
+    interview.save(
+        update_fields=[
+            "status",
+            "ended_at"
+        ]
+    )
+
+    generate_final_report(
+        interview=interview
+    )
+
+
+def generate_final_report(
+    *,
+    interview
+):
+
+    transcripts = (
+
+        InterviewTranscript.objects
+        .filter(
+            interview=interview
+        )
+        .exclude(
+            ai_evaluation__isnull=True
+        )
+    )
+
+    scores = []
+
+    strengths = []
+
+    improvements = []
+
+    for item in transcripts:
+
+        evaluation = (
+            item.ai_evaluation or {}
+        )
+
+        score = (
+            evaluation.get(
+                "score"
+            )
+        )
+
+        if score is not None:
+
+            scores.append(
+                float(score)
+            )
+
+        strengths.extend(
+            evaluation.get(
+                "strengths",
+                []
+            )
+        )
+
+        improvements.extend(
+            evaluation.get(
+                "weaknesses",
+                []
+            )
+        )
+
+    overall_score = (
+        round(
+            sum(scores) / len(scores),
+            2
+        )
+        if scores
+        else 0
+    )
+
+    summary = (
+        f"Candidate completed a "
+        f"{interview.role} interview "
+        f"with an overall score of "
+        f"{overall_score}/10."
+    )
+
+    recommendation = (
+        "Recommended"
+        if overall_score >= 7
+        else "Needs Improvement"
+    )
+
+    InterviewReport.objects.update_or_create(
+
+        interview=interview,
+
+        defaults={
+
+            "overall_score":
+            overall_score,
+
+            "communication_score":
+            overall_score,
+
+            "technical_score":
+            overall_score,
+
+            "confidence_score":
+            overall_score,
+
+            "strengths":
+            list(set(strengths))[:10],
+
+            "improvements":
+            list(set(improvements))[:10],
+
+            "summary":
+            summary,
+
+            "recommendation":
+            recommendation,
+        }
+    )

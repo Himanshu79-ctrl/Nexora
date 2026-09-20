@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Upload, FileText, X, CheckCircle, Sparkles, Trash2 } from 'lucide-react';
 import MainLayout from '../components/layout/MainLayout';
-import { uploadResume, analyzeResume } from '../api/resumeApi';
+import { uploadResume } from '../api/resumeApi';
 import toast from 'react-hot-toast';
 
 const SKILL_COLORS = {
@@ -17,10 +17,10 @@ export default function ResumeUploadPage() {
   const [dragOver, setDragOver] = useState(false);
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const [analyzing, setAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState(null);
   const [recentUploads, setRecentUploads] = useState([]);
-
+  const [analyzing, setAnalyzing] = useState(false);
+  
   const handleFile = useCallback((f) => {
     if (!f) return;
     const allowed = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
@@ -43,27 +43,34 @@ export default function ResumeUploadPage() {
   };
 
   const handleUploadAndAnalyze = async () => {
-    if (!file) return;
-    try {
-      setUploading(true);
-      const formData = new FormData();
-      formData.append('resume', file);
-      const uploadRes = await uploadResume(formData);
-      setRecentUploads(prev => [{ name: file.name, id: uploadRes.id, date: new Date() }, ...prev]);
-      toast.success('Resume uploaded!');
+  if (!file) return;
 
-      setUploading(false);
-      setAnalyzing(true);
-      const result = await analyzeResume(uploadRes.id);
-      setAnalysis(result);
-      toast.success('Analysis complete!');
-    } catch (err) {
-      toast.error(err.message || 'Upload failed');
-    } finally {
-      setUploading(false);
-      setAnalyzing(false);
-    }
-  };
+  try {
+    setUploading(true);
+    setAnalyzing(true);
+
+    const { data } = await uploadResume(file);
+
+    setAnalysis(data.resume.analysis);
+
+    toast.success("Resume uploaded and analyzed!");
+
+    window.dispatchEvent(
+      new Event("resume-updated")
+    );
+
+  } catch (err) {
+    console.error(err);
+
+    toast.error(
+      err?.response?.data?.error ||
+      "Upload failed"
+    );
+  } finally {
+    setUploading(false);
+    setAnalyzing(false);
+  }
+};
 
   return (
     <MainLayout>
@@ -118,9 +125,9 @@ export default function ResumeUploadPage() {
               <button
                 className="analyze-btn"
                 onClick={handleUploadAndAnalyze}
-                disabled={uploading || analyzing}
+                disabled={uploading}
               >
-                {uploading ? 'Uploading...' : analyzing ? 'Analyzing...' : (
+                {uploading ? 'Uploading & Analyzing...' : (
                   <><Sparkles size={16} /> Analyze Resume</>
                 )}
               </button>

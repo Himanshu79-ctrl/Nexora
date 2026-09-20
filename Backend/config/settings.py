@@ -23,7 +23,6 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "daphne",
-    # Django Apps
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -205,7 +204,7 @@ REST_FRAMEWORK = {
 }
 SIMPLE_JWT = {
 
-    "ACCESS_TOKEN_LIFETIME":timedelta(hours=1),
+    "ACCESS_TOKEN_LIFETIME":timedelta(days=7),
 
     "REFRESH_TOKEN_LIFETIME":timedelta(days=7),
 
@@ -228,7 +227,19 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:5173",
 ]
-
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True 
+# CORS_ALLOW_HEADERS = [
+#     "accept",
+#     "accept-encoding",
+#     "authorization",
+#     "content-type",
+#     "dnt",
+#     "origin",
+#     "user-agent",
+#     "x-csrftoken",
+#     "x-requested-with",
+# ]
 
 # ================================
 # CHANNELS

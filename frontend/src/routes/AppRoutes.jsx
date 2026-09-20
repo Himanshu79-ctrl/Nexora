@@ -11,6 +11,8 @@ import InterviewSetupPage from '../pages/InterviewSetupPage';
 import InterviewRoomPage from '../pages/InterviewRoomPage';
 import ReportPage from '../pages/ReportPage';
 
+import ResumeDetailPage from '../pages/ResumeDetailPage';
+
 export default function AppRoutes() {
   const { user } = useAuth();
 
@@ -42,6 +44,14 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute>
               <ResumeUploadPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/resume/:resumeId"
+          element={
+            <ProtectedRoute>
+              <ResumeDetailPage />
             </ProtectedRoute>
           }
         />

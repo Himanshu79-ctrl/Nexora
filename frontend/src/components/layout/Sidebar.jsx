@@ -1,4 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { getResumes } from '../../api/resumeApi'
 import { useAuth } from '../../context/AuthContext'
 
 const NAV = [
@@ -12,7 +14,28 @@ const NAV = [
 
 const Sidebar = () => {
   const { user, logout } = useAuth()
+  const [resumes, setResumes] = useState([])
+  const [resumeOpen, setResumeOpen] = useState(false);
   const nav = useNavigate()
+  useEffect(() => {
+  const loadResumes = async () => {
+    try {
+      const { data } = await getResumes();
+      setResumes(data);
+    } catch (error) {
+      console.error("Failed to load resumes:", error);
+    }
+  };
+
+  loadResumes();
+
+  window.addEventListener("resume-updated", loadResumes);
+
+  return () => {
+    window.removeEventListener("resume-updated", loadResumes);
+  };
+}, []);
+
 
   return (
     <aside style={{
@@ -30,24 +53,84 @@ const Sidebar = () => {
         </div>
       </div>
 
-      <nav style={{ flex: 1, padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <nav style={{flex: 1,minHeight: 0,overflowY: "auto",padding: "16px 12px",display: "flex",flexDirection: "column",gap: 4}}>
         {NAV.map(({ to, icon, label }) => (
-          <NavLink key={to} to={to} style={({ isActive }) => ({
-            display: 'flex', alignItems: 'center', gap: 10,
-            padding: '10px 12px', borderRadius: 8,
-            fontSize: 14, fontWeight: 500,
-            color: isActive ? '#a78bfa' : '#64748b',
-            background: isActive ? 'rgba(124,58,237,0.12)' : 'transparent',
-            textDecoration: 'none', transition: 'all 0.2s',
-            borderLeft: isActive ? '3px solid #7c3aed' : '3px solid transparent',
-          })}
-            onMouseEnter={e => { if (!e.currentTarget.classList.contains('active')) e.currentTarget.style.color = '#94a3b8' }}
-            onMouseLeave={e => { if (!e.currentTarget.classList.contains('active')) e.currentTarget.style.color = '#64748b' }}
+          <div key={to}>
+            <NavLink
+            to={to}
+            onClick={() => {
+              if (label === "Resume") {
+                setResumeOpen((prev) => !prev);
+              }
+            }}
+            style={({ isActive }) => ({
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "10px 12px",
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 500,
+              color: isActive ? "#a78bfa" : "#64748b",
+              background: isActive
+                ? "rgba(124,58,237,0.12)"
+                : "transparent",
+              textDecoration: "none",
+              borderLeft: isActive
+                ? "3px solid #7c3aed"
+                : "3px solid transparent",
+            })}
           >
-            <span style={{ fontSize: 16 }}>{icon}</span>
-            {label}
-          </NavLink>
-        ))}
+      <span style={{ fontSize: 16 }}>{icon}</span>
+
+      {label}
+
+      {label === "Resume" && (
+        <span style={{ marginLeft: "auto" }}>
+          {resumeOpen ? "⌃" : "⌄"}
+        </span>
+      )}
+    </NavLink>
+
+    {label === "Resume" &&
+      resumeOpen &&
+      resumes.length > 0 && (
+        <div
+          style={{
+            marginLeft: 18,
+            marginTop: 4,
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
+          {resumes.map((resume) => (
+            <button
+              key={resume.id}
+              onClick={() =>
+                nav(`/resume/${resume.id}`)
+              }
+              style={{
+                background: "none",
+                border: "none",
+                color: "#64748b",
+                padding: "7px 8px",
+                textAlign: "left",
+                fontSize: 12,
+                cursor: "pointer",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+              title={resume.title}
+            >
+              📄 {resume.title}
+            </button>
+          ))}
+        </div>
+      )}
+  </div>
+))}
       </nav>
 
       <div style={{ padding: 12, borderTop: '1px solid rgba(255,255,255,0.06)' }}>

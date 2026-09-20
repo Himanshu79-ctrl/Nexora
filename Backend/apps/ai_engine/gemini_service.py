@@ -38,7 +38,8 @@ def analyze_resume(resume_text):
         """
 
         response = model.generate_content(
-            prompt
+            prompt,
+            request_options={"timeout": 60}
         )
 
         cleaned_response = (

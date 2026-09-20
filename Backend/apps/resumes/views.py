@@ -2,7 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-
+from rest_framework.generics import ListAPIView, DestroyAPIView,RetrieveAPIView
+from .models import Resume
 from .serializers import ResumeSerializer
 from .utils import extract_text_from_pdf
 
@@ -96,3 +97,69 @@ class ResumeUploadView(APIView):
 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+        
+
+
+class ResumeListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        resumes = Resume.objects.filter(
+            user=request.user
+        ).order_by("-uploaded_at")
+
+        data = [
+            {
+                "id": resume.id,
+                "title": resume.title,
+                "ai_analysis": resume.ai_analysis,
+                "uploaded_at": resume.uploaded_at,
+            }
+            for resume in resumes
+        ]
+
+        return Response(data)
+    
+
+
+
+class ResumeDeleteView(DestroyAPIView):
+
+    permission_classes = [
+        IsAuthenticated
+    ]
+
+    serializer_class = (
+        ResumeSerializer
+    )
+
+    def get_queryset(self):
+
+        return (
+            Resume.objects
+            .filter(
+                user=self.request.user
+            )
+        )
+
+class ResumeDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        try:
+            resume = Resume.objects.get(
+                id=pk,
+                user=request.user
+            )
+        except Resume.DoesNotExist:
+            return Response(
+                {"error": "Resume not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        return Response({
+            "id": resume.id,
+            "title": resume.title,
+            "ai_analysis": resume.ai_analysis,
+            "uploaded_at": resume.uploaded_at,
+        })

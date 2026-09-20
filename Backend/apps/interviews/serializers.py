@@ -16,11 +16,10 @@ class CreateInterviewSerializer(
         max_length=255
     )
 
-    duration_minutes = serializers.IntegerField()
-
     difficulty = serializers.ChoiceField(
         choices=DifficultyLevel.choices
     )
+    duration_minutes = serializers.IntegerField()
 
     def validate_duration_minutes(
         self,

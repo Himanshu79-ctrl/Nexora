@@ -1,5 +1,6 @@
 import api from './axios'
 
+
 export const loginUser = (credentials) =>
   api.post('/accounts/login/', credentials)
 
@@ -12,7 +13,7 @@ export const logoutUser = () =>
   })
 
 export const getMe = () =>
-  api.get('/accounts/me/')
+  api.get('/accounts/profile/') 
 
 export const refreshToken = (refresh) =>
   api.post('/accounts/token/refresh/', { refresh })

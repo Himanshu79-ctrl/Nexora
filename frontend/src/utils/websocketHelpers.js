@@ -1,55 +1,56 @@
-import { WS_BASE } from './constants'
-
-export const buildWsUrl = (path) => `${WS_BASE}/${path}/`
+import { WS_BASE } from "./constants";
 
 export class InterviewWebSocket {
-  constructor(interviewId, onMessage, onClose) {
-    this.url = buildWsUrl(`interview/${interviewId}`)
-    this.onMessage = onMessage
-    this.onClose = onClose
-    this.ws = null
-    this.reconnectAttempts = 0
-    this.maxReconnects = 5
-  }
+    constructor(roomName) {
+        const token = localStorage.getItem("access_token");
+        this.url = `${WS_BASE}/interview/${roomName}/?token=${encodeURIComponent(token)}`;
+        this.socket = null;
 
-  connect() {
-    this.ws = new WebSocket(this.url)
-
-    this.ws.onopen = () => {
-      console.log('[WS] Connected')
-      this.reconnectAttempts = 0
+        this.onMessage = null;
+        this.onClose = null;
+        this.onOpen = null;
+        this.onError = null;
     }
 
-    this.ws.onmessage = (e) => {
-      try {
-        const data = JSON.parse(e.data)
-        this.onMessage(data)
-      } catch (err) {
-        console.error('[WS] Parse error', err)
-      }
+    connect() {
+        this.socket = new WebSocket(this.url);
+
+        this.socket.onopen = () => {
+            console.log("WebSocket Connected");
+            this.onOpen?.();
+        };
+
+        this.socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            this.onMessage?.(data);
+        };
+
+        this.socket.onclose = () => {
+            console.log("Socket Closed");
+            this.onClose?.();
+        };
+
+        this.socket.onerror = (event) => {
+            console.error("WebSocket Error:", event);
+            this.onError?.(event);
+        };
     }
 
-    this.ws.onclose = () => {
-      console.log('[WS] Disconnected')
-      if (this.reconnectAttempts < this.maxReconnects) {
-        this.reconnectAttempts++
-        setTimeout(() => this.connect(), 2000 * this.reconnectAttempts)
-      } else {
-        this.onClose?.()
-      }
+    send(payload) {
+        if (
+            this.socket &&
+            this.socket.readyState === WebSocket.OPEN
+        ) {
+            this.socket.send(
+                JSON.stringify(payload)
+            );
+        }
     }
 
-    this.ws.onerror = (err) => console.error('[WS] Error', err)
-  }
-
-  send(type, payload) {
-    if (this.ws?.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify({ type, ...payload }))
+    close() {
+        if (this.socket) {
+            this.socket.close();
+            this.socket = null;
+        }
     }
-  }
-
-  close() {
-    this.maxReconnects = 0
-    this.ws?.close()
-  }
 }

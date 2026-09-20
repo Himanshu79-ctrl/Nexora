@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import Button from "../common/Button";
-
+import NexoraLogo from "../common/NexoraLogo";
 import "../../styles/layout/navbar.css";
 
 const Navbar = ({ landing = false }) => {
@@ -23,11 +23,12 @@ const Navbar = ({ landing = false }) => {
       <nav className="navbar">
 
         {/* Logo */}
+        {/* Logo */}
         <Link to="/" className="navbar-logo">
-          <div className="logo-icon">🤖</div>
-
+          <NexoraLogo size={42} />
+          
           <span className="logo-text">
-            AI Interview
+            Nexora
           </span>
         </Link>
 

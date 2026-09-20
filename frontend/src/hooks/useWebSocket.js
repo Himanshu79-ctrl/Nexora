@@ -1,31 +1,68 @@
-import { useEffect, useRef, useState } from 'react'
-import { InterviewWebSocket } from '../utils/websocketHelpers'
+import { useEffect, useRef, useState, useCallback } from "react";
+import { InterviewWebSocket } from "../utils/websocketHelpers";
 
-export const useWebSocket = (interviewId) => {
-  const [connected, setConnected] = useState(false)
-  const [lastMessage, setLastMessage] = useState(null)
-  const wsRef = useRef(null)
+export const useWebSocket = (roomName) => {
 
-  useEffect(() => {
-    if (!interviewId) return
+    const socketRef = useRef(null);
 
-    const ws = new InterviewWebSocket(
-      interviewId,
-      (msg) => {
-        setLastMessage(msg)
-        if (msg.type === 'connected') setConnected(true)
-      },
-      () => setConnected(false)
-    )
+    const [connected, setConnected] = useState(false);
 
-    ws.connect()
-    wsRef.current = ws
-    setConnected(true)
+    const [lastMessage, setLastMessage] = useState(null);
 
-    return () => ws.close()
-  }, [interviewId])
+    useEffect(() => {
 
-  const send = (type, payload) => wsRef.current?.send(type, payload)
+        if (!roomName) {
 
-  return { connected, lastMessage, send }
-}
+            return;
+        }
+
+        const socket = new InterviewWebSocket(
+            roomName
+        );
+
+        socket.onOpen = () => {
+
+            setConnected(true);
+        };
+
+        socket.onClose = () => {
+
+            setConnected(false);
+        };
+
+        socket.onError = () => {
+
+            setConnected(false);
+        };
+
+        socket.onMessage = (message) => {
+
+            setLastMessage(message);
+        };
+
+        socket.connect();
+
+        socketRef.current = socket;
+
+        return () => {
+
+            socket.close();
+        };
+
+    }, [roomName]);
+
+    const send = useCallback((payload) => {
+
+        socketRef.current?.send(payload);
+
+    }, []);
+
+    return {
+
+        connected,
+
+        lastMessage,
+
+        send,
+    };
+};

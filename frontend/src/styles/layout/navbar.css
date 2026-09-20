@@ -225,3 +225,68 @@
   }
 
 }
+
+/* =========================
+   Nexora Logo
+========================= */
+
+.nexora-logo {
+  display: block;
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+/* Orbit slowly rotates */
+.nexora-orbit {
+  transform-origin: 32px 32px;
+  animation: nexoraOrbit 5s linear infinite;
+}
+
+/* Glowing particle */
+.nexora-particle {
+  animation: nexoraParticle 2s ease-in-out infinite alternate;
+}
+
+/* AI sparkle */
+.nexora-sparkle {
+  transform-origin: 49px 13px;
+  animation: nexoraSparkle 2s ease-in-out infinite;
+}
+
+/* Orbit rotation */
+@keyframes nexoraOrbit {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Particle glow */
+@keyframes nexoraParticle {
+  from {
+    opacity: 0.35;
+    transform: scale(0.75);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+}
+
+/* Sparkle animation */
+@keyframes nexoraSparkle {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.8);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
