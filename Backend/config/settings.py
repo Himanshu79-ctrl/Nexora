@@ -2,7 +2,7 @@ from datetime import timedelta
 from pathlib import Path
 from decouple import config
 import cloudinary
-
+import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -105,16 +105,23 @@ ASGI_APPLICATION = "config.asgi.application"
 # DATABASE
 # ================================
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("DB_NAME"),
-        "USER": config("DB_USER"),
-        "PASSWORD": config("DB_PASSWORD"),
-        "HOST": config("DB_HOST"),
-        "PORT": config("DB_PORT"),
+_db_url = config("DATABASE_URL", default="")
+
+if _db_url:
+    DATABASES = {
+        "default": dj_database_url.parse(_db_url, conn_max_age=600, ssl_require=True)
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": config("DB_NAME"),
+            "USER": config("DB_USER"),
+            "PASSWORD": config("DB_PASSWORD"),
+            "HOST": config("DB_HOST"),
+            "PORT": config("DB_PORT"),
+        }
+    }
 
 
 # ================================
